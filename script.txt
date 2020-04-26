@@ -1,0 +1,13 @@
+[[History Of Mobile Me]]
+
+[Intro]
+Mobile was initaliy released on January 5 2000 brnaded as Itools,
+it was later rebraned to dot Mac in 2002 and then finially being changed to the iconic Mobile Me in 2008, 
+It is a discontinued subscription-based collection of online services and software offered by Apple Inc.
+All services were gradually transitioned to and eventually replaced by the free iCloud, and MobileMe ceased on June 30, 2012.
+
+iTools and .Mac were designed primarily to provide Internet services for Mac owners. 
+All members of iTools and .Mac received a @mac.com email address, showing the services tied to the Mac hardware. 
+However, with the release of the iPhone 3G in 2008, the renamed service, MobileMe, began providing Internet services for OS X, iOS, and Windows. 
+Members of MobileMe were given a @me.com email address (though users of the current @mac.com email address could also continue to use those, with both domains being interchangeable with the same email account), were also no longer restricted to OS X software such as Mail and iCal, and they could access personal data from any computer connected to the Internet using the web interface at me.com or a number of supported applications, including Microsoft Outlook, as long as the user used version 2003 or later.
+Apple support for MobileMe was available via chat and telephone (the latter restricted to US/Canada users only).
