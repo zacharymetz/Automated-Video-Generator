@@ -6,10 +6,10 @@ function generateVideo(){
     var command = ffmpeg();
     command.input('./testFrames/frame%08d.png')
     .inputFPS(30)
-    .output('goodoldTest.mp4')
+    .output('testaddress.mp4')
     .outputFPS(30)
     //.noAudio()
-    .input('mobileme.mp3')
+    .input('testpope.mp3')
     .run();
 }
 generateVideo()
