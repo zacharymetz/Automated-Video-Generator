@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+      "start": "node server.js",
+      "prestart": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -18,8 +21,15 @@
   "homepage": "https://github.com/zacharymetz/autodoc#readme",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
+    "ffmpeg": "0.0.4",
     "ffmpeg-installer": "^1.0.2",
     "fluent-ffmpeg": "^2.1.2",
+    "get-audio-duration": "^1.0.0",
     "jimp": "^0.10.3"
+  },
+  "devDependencies": {
+    "@types/node": "^13.13.4",
+    "ts-node": "^8.9.1",
+    "typescript": "^3.8.3"
   }
 }
