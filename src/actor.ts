@@ -1,3 +1,4 @@
+
 var fs = require('fs');
 const { getAudioDurationInSeconds } = require('get-audio-duration')
 
@@ -149,6 +150,35 @@ function onlyUnique(value, index, self) {
 
 
 
+/**
+ * this object is the character and all of their 
+ * frame posisitons over time 
+ */
+export class Actor{
+    name:string;
+    frameTable:FrameTable;
+    /**
+     * 
+     * @param name the folder name where all the assest are stored
+     */
+    constructor(name){
+
+        this.name = name;
+        this.frameTable = new FrameTable();
+
+
+        
+    }
+
+    loadPhoneticInfo(wordTable){
+
+    }
+
+    
+
+}
+
+
 
 
 
@@ -163,6 +193,8 @@ function onlyUnique(value, index, self) {
  * and be exabable, its more a character table but later in type script 
  */
 class FrameTable{
+    frameList: any[];
+    baseImage: string;
     constructor(){
         //  internal list of frames 
         //  ordered by the frame range
@@ -216,7 +248,7 @@ class FrameTable{
 
 
 class VideoCoordinator{
-    constructor(){
+    constructor(folderOfFiles){
         //  want to load the audio file and the proper align file 
         //  from the folder 
     }
