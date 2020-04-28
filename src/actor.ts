@@ -1,153 +1,8 @@
 
 var fs = require('fs');
-const { getAudioDurationInSeconds } = require('get-audio-duration')
 
-
-const vowelMap ={
-'m' :"./test/m_p_b.png",
-'ow' :"./test/ooh_r.png",
-'b' :"./test/m_p_b.png",
-'ah' :"./test/ah_eh_ih.png",
-'l' :"./test/y_l.png",
-'iy' :"./test/ah_eh_ih.png",
-'w' :"./test/d_g_k.png",
-'z' :"./test/d_g_k.png", 
-'ih' :"./test/ah_eh_ih.png", 
-'n' :"./test/d_g_k.png", 
-'sh' :"./test/d_g_k.png", 
-'r' :"./test/ooh_r.png",
-'s' :"./test/d_g_k.png", 
-'t' :"./test/d_g_k.png",
-'aa' :"./test/ah_eh_ih.png",
-'jh' :"./test/d_g_k.png",
-'ae' :"./test/ah_eh_ih.png",
-'y' :"./test/y_l.png",
-'uw' :"./test/ooh_r.png",
-'eh' :"./test/ah_eh_ih.png",
-'oov' :"./test/ooh_r.png",
-'d' :"./test/d_g_k.png",
-'ey' :"./test/ah_eh_ih.png",
-'er' :"./test/d_g_k.png",
-'k' :"./test/d_g_k.png",
-'f' :"./test/f_v.png", 
-'ay' :"./test/ah_eh_ih.png", 
-'ng' :"./test/d_g_k.png",
-'ch' :"./test/d_g_k.png",
-'dh' :"./test/d_g_k.png",
-'p' :"./test/m_p_b.png", 
-'v' :"./test/f_v.png",
-'ao' :"./test/ah_eh_ih.png",
-'g' :"./test/d_g_k.png"
-
-}
-
-
-
-
-
-
-
-
-
-
-async function main(){
-    //  read the file 
-    var contents = JSON.parse(fs.readFileSync('./testPopAlign.json', 'utf8'));
-    // for each word
-    var phoneFrames = new FrameTable();
-    for(let i in contents.words){
-        let word = contents.words[i];
-        //  set the start of the phone chain to the word start 
-        let startMilisecond =(word.start) * 1000;
-
-        for(let j in word.phones){
-            let phone = word.phones[j];
-            //  generate an miliseonds range for the time the 
-            //  phenom is 
-            let myStartMilisecond = startMilisecond;
-            let myEndMiliseonds = myStartMilisecond + (phone.duration * 1000);
-            phoneFrames.add(
-                vowelMap[phone.phone.split("_")[0]]
-                ,[myStartMilisecond,myEndMiliseonds]
-            );
-            //  after we push a frame then we need to set the start to 
-            //  this guys end since its in the word 
-            startMilisecond = myEndMiliseonds;
-
-
-
-
-        }
-
-        //  so now lets do a check to see if the stuff lines up 
-        //console.log("Does this match",(word.end) * 1000,startMilisecond)
-
-
-
-    }
-
-
-    var frames = writeTestFrames(phoneFrames, "./testFrames/",30);
-
-        //  get the start time and figure out 
-        //  get the start for each "letter ish thing"
-        //  add it to a list with the millisoncd start and what image file 
-}
-
-
-
-
-function writeTestFrames(frameTable,folder,fps){
-    
-    //  first get how much time in ms each frame is 
-    var frameTimeMilliseconds = 1000/fps;
-    //console.log(frameTimeMilliseconds)
-   
-    var frameNumber = 0;
-    var frames = [];
-    var currentTime = 0;
-    while(currentTime < frameTable.getTotalDuration()){
-        //  get the image we need at that time here
-        let image = frameTable.getImageAtTime(currentTime);
-        console.log(image)
-        if(!image){
-            image = "./test/base.png";
-        }
-        
-        
-        
-        var fileName = folder + "frame" + pad(frameNumber) + ".png";
-            //  since we arent doing anything cool with the frames yet 
-            //  we need to make them into a a folder and name it 
-            
-            fs.copyFile(image, fileName, (err) => {
-                if (err) throw err;
-                
-              });
-
-
-            frames.push(fileName)
-        currentTime = currentTime + frameTimeMilliseconds;
-        frameNumber ++;
-    }
-    
-    return frames;
-
-}
-function pad(number){
-    var numberString = number.toString();
-    while(numberString.length < 8){
-        numberString = "0" + numberString;
-    }
-    return numberString;
-}
-
-
-function onlyUnique(value, index, self) { 
-    return self.indexOf(value) === index;
-}
-
-
+import { readFileSync } from 'fs';
+import * as Jimp from 'jimp';
 
 
 /**
@@ -156,7 +11,7 @@ function onlyUnique(value, index, self) {
  */
 export class Actor{
     name:string;
-    frameTable:FrameTable;
+    phoneticFrameTable:FrameTable;
     /**
      * 
      * @param name the folder name where all the assest are stored
@@ -164,18 +19,84 @@ export class Actor{
     constructor(name){
 
         this.name = name;
-        this.frameTable = new FrameTable();
+        this.phoneticFrameTable = new FrameTable();
 
 
         
     }
 
-    loadPhoneticInfo(wordTable){
-
-    }
 
     
+    /**
+     *  Loads the phonetic data in from the align 
+     * @param words 
+     */
+    loadPhoneticInfo(words){
+        //  mi guess we can just assume that the character 
+        //  image exists 
 
+
+        //  load the time seired data
+        for(let i in words){
+            let word = words[i];
+            //  set the start of the phone chain to the word start 
+            let startMilisecond =(word.start) * 1000;
+
+            for(let j in word.phones){
+                let phone = word.phones[j];
+                //  generate an miliseonds range for the time the 
+                //  phenom is 
+                let myStartMilisecond = startMilisecond;
+                let myEndMiliseonds = myStartMilisecond + (phone.duration * 1000);
+                this.phoneticFrameTable.add(
+                    vowelMap[phone.phone.split("_")[0]]
+                    ,[myStartMilisecond,myEndMiliseonds]
+                );
+                //  after we push a frame then we need to set the start to 
+                //  this guys end since its in the word 
+                startMilisecond = myEndMiliseonds;
+            }
+        }
+ 
+    }
+
+
+    async getCharacterFrameAtTime(t:number):Promise<Jimp>{
+        //  get the location of the actor assets 
+        let actorFolder = "./actors/"+this.name + "/";
+
+        //  get the proper character pose (right now its just the base 
+        //  image)
+        let characterPose = "base.png";
+        
+        
+        //  for the frame get the phonitic info for the time 
+        let phoneticIdentityer = this.phoneticFrameTable.getImageAtTime(t);
+        console.log(actorFolder + phoneticIdentityer)
+        //  so now lets get combine the images with a promise  
+        var character = await new Promise<Jimp>((ok,reject)=>{
+            Jimp.read(actorFolder + characterPose, (err, character) => {
+                if(characterPose === phoneticIdentityer){
+                    ok(character)
+                }else{
+                    Jimp.read(actorFolder + phoneticIdentityer, (err, mouth) => {
+        
+                        //  lets do some math so we can figure out to put the mouth in the 
+                        //  eact middle of the space 
+                        var middleX = 200 - (mouth.bitmap.width / 2)
+                        var middleY = 450 - (mouth.bitmap.height / 2)
+                        if (err) throw err;
+                        //  make sure to return the promise with an okey
+                        ok(character.composite( mouth, middleX, middleY ))
+                         
+                    });
+                }
+            });
+        });
+        //  we want to return the character so it can be use by the preformance 
+        //  hoever it wants 
+        return character;
+    }
 }
 
 
@@ -183,7 +104,7 @@ export class Actor{
 
 
 
-
+ 
 
 /**
  * so this is a list where we pack frames regardless of where they are
@@ -193,19 +114,22 @@ export class Actor{
  * and be exabable, its more a character table but later in type script 
  */
 class FrameTable{
-    frameList: any[];
+    phoneticFrameList: any[];
     baseImage: string;
     constructor(){
         //  internal list of frames 
         //  ordered by the frame range
-        this.frameList = [];
-        this.baseImage = "./test/base.png";
+
+        //  for later we can add more frame stuff 
+        this.phoneticFrameList = [];
+        this.baseImage = "base.png";
+
         
     }
-    add(imageSrc, frameRange){
+    add(imageSrc, frameRange):void{
         //  console.log(imageSrc)
         //  add it to the list 
-        this.frameList.push({
+        this.phoneticFrameList.push({
             rangeStart : frameRange[0],
             rangeEnd : frameRange[1],
             image : imageSrc
@@ -218,10 +142,10 @@ class FrameTable{
 
     //  time in miliseconds that you 
     //  want the frame 
-    getImageAtTime(t){
+    getImageAtTime(t:number):string{
         //  loop thought the frame list until we find one that i am 
         //  in the range of 
-        for(let frame of this.frameList){
+        for(let frame of this.phoneticFrameList){
             if(t >= frame.rangeStart && t <= frame.rangeEnd ){
                 return frame.image;
             }
@@ -233,30 +157,47 @@ class FrameTable{
 
     }
 
-    getTotalDuration(){
-        //  will get the last frame and the end range 
-        //  for the ammount of frames we need to draw for the 
-        //  guy 
-        //console.log(this.frameList[this.frameList.length -1].rangeEnd)
-        return this.frameList[this.frameList.length -1].rangeEnd;
-    }
 
 }
 
 
 
-
-
-class VideoCoordinator{
-    constructor(folderOfFiles){
-        //  want to load the audio file and the proper align file 
-        //  from the folder 
+//  this vowel map for which sound to image i guess 
+//  it is loaded in when the phenomic table is loaded in 
+const vowelMap ={
+    'm' :"m_p_b.png",
+    'ow' :"ooh_r.png",
+    'b' :"m_p_b.png",
+    'ah' :"ah_eh_ih.png",
+    'l' :"y_l.png",
+    'iy' :"ah_eh_ih.png",
+    'w' :"d_g_k.png",
+    'z' :"d_g_k.png", 
+    'ih' :"ah_eh_ih.png", 
+    'n' :"d_g_k.png", 
+    'sh' :"d_g_k.png", 
+    'r' :"ooh_r.png",
+    's' :"d_g_k.png", 
+    't' :"d_g_k.png",
+    'aa' :"ah_eh_ih.png",
+    'jh' :"d_g_k.png",
+    'ae' :"ah_eh_ih.png",
+    'y' :"y_l.png",
+    'uw' :"ooh_r.png",
+    'eh' :"ah_eh_ih.png",
+    'oov' :"ooh_r.png",
+    'd' :"d_g_k.png",
+    'ey' :"ah_eh_ih.png",
+    'er' :"d_g_k.png",
+    'k' :"d_g_k.png",
+    'f' :"f_v.png", 
+    'ay' :"ah_eh_ih.png", 
+    'ng' :"d_g_k.png",
+    'ch' :"d_g_k.png",
+    'dh' :"d_g_k.png",
+    'p' :"m_p_b.png", 
+    'v' :"f_v.png",
+    'ao' :"ah_eh_ih.png",
+    'g' :"d_g_k.png"
+    
     }
-}
-
-
-
-
-
-main();
-
