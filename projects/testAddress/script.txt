@@ -1,2 +1,9 @@
+TestAddress
+actor:testPope
+
+
+[bodyStart]
+<base>
 I am Test Pope,
 This is my first address to the people which ends now.
+[bodyEnd]

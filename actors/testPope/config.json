@@ -1,0 +1,12 @@
+{
+
+    "name" : "testPope",
+    "pose" : {
+        "default" : "base.png"
+    },
+    "mouth":{
+        "x" : 525,
+        "y": 250,
+        "anchor": "center"
+    }
+}

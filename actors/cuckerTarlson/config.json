@@ -1,0 +1,17 @@
+{
+
+    "name" : "cuckerTarlson",
+    "pose" : {
+        "default" : "relaxed.png",
+        "poseTable" : {
+            "relaxed" : "relaxed.ong",
+            "question" : "questioning.png",
+            "explain" : "explain.png"
+        }
+    },
+    "mouth":{
+        "x" : 200,
+        "y": 450,
+        "anchor": "center"
+    }
+}

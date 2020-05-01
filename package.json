@@ -20,6 +20,7 @@
   "homepage": "https://github.com/zacharymetz/autodoc#readme",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
+    "@types/fluent-ffmpeg": "^2.1.14",
     "@types/jimp": "^0.2.28",
     "ffmpeg": "0.0.4",
     "ffmpeg-installer": "^1.0.2",

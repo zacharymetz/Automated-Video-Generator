@@ -1,6 +1,9 @@
-import { Performance} from './performance'
+import { Project} from './project'
+import { FrameTable } from './frameTable';
 
 
 
 //  just create it this object will handle everything 
-new Performance("mobileMe"); 
+new Project("testAddress"); 
+
+
