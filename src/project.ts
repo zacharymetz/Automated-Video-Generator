@@ -61,7 +61,7 @@ export class Project{
         let actorTracks = new Map<string,Map<string,any>>();
         //  set the word track for the actor 
         actorTracks.set("words",alignFile.words);
-         
+        actorTracks.set("eyes",new Map<string,any>());
         let currentLine = scriptLines.shift();
         console.log(scriptLines)
         while(currentLine != "[bodyStart]"){console.log(currentLine)
@@ -108,11 +108,20 @@ export class Project{
         
         //  then load in the objects (for now there is none)
         
+
+        //  load in the desk 
+        this.rootScene.addNewSubSceenObject(
+            new SceneObject(this.projectFolder,'projects','desk.png'),
+            new StaticPositiontable(0,1080,"bottom-left")
+        )
+
+
         //  then load in any actors TODO is parse the mouth track for sure
         let actor = createActor(actorName,actorTracks);
+        console.log(actor.subObjects)
         //  return an empty promise 
         this.rootScene.addNewSubSceenObject(actor,
-                        new StaticPositiontable(0,0,"top-left"))
+                        new StaticPositiontable(325,182,"top-left"))
         console.log("done loading ")
         
     }

@@ -56,7 +56,7 @@ export class SceneObject{
         //  good 
         
         let folder:string = './'+this.assestFolder+'/'+this.name+"/" + this.frameTable.getImageAtTime(t); 
-        console.log(folder)
+         
         return await new Promise<Jimp>((ok,reject)=>{
             //  alight he we want to use the frame thing to get 
             //  the timage for us, that means we need to store 
@@ -68,10 +68,12 @@ export class SceneObject{
 
                 //  after the image is read then 
                 for(let i in this.subObjects){
+                    console.log("subObject :",this.frameTable.getImageAtTime(t),folder)
                     try{
                         //  let the object deal with it self if it needs something 
                         //  that way we can nest things as deep as we want 
                         let subImage = await this.subObjects[i].sceneObject.getObjectFrameAtTime(t);
+                        
                         let position = await this.subObjects[i].positionTable.getPosistionAtTime(t);
                         
                         if(subImage){
@@ -86,6 +88,8 @@ export class SceneObject{
                             if(position.anchor == "center"){
                                 x = position.x - (subImage.bitmap.width/2);
                                 y = position.y - (subImage.bitmap.height/2);
+                            } if(position.anchor == "bottom-left"){
+                                y = y - (subImage.bitmap.height);
                             }
 
                             
@@ -166,7 +170,12 @@ export function createActor(name:string,subTracks:Map<string,Map<string,any>>):S
     //  the eyes tracks
     if(subTracks.has("eyes"))
     {
-        
+        //  for now lets just add a static things with a base images 
+        let eyetrack = new SceneObject(name,'actors','eyes_angry.png');
+        actor.addNewSubSceenObject(
+            eyetrack,
+            new StaticPositiontable(actorConfig.eyes.x,actorConfig.eyes.y,actorConfig.eyes.anchor)
+        );
     }
     //  if it has a pose track
     if(subTracks.has("pose"))
@@ -266,7 +275,7 @@ export function recreatePositionTableFrom(positionTable:any):PositionTable{
 
 
 export function  reconstructSceneObjects(oldSceneObject:any):SceneObject{
-    //console.log("this is the old scene",oldSceneObject.name,oldSceneObject.frameTable.baseImage)
+    console.log("this is the old scene",oldSceneObject.name,oldSceneObject.frameTable.baseImage)
     //  will create and do back 
     let name:string = oldSceneObject.name;
     let assestFolder:string = oldSceneObject.assestFolder;
@@ -335,4 +344,40 @@ const vowelMap ={
     'v' :"f_v.png",
     'ao' :"ah_eh_ih.png",
     'g' :"d_g_k.png"
+}
+const downVowelMap ={
+    'm' :"m_p_b_down.png",
+    'ow' :"ooh_r.png",
+    'b' :"m_p_b_down.png",
+    'ah' :"ah_eh_ih_down.png",
+    'l' :"y_l_down.png",
+    'iy' :"ah_eh_ih_down.png",
+    'w' :"d_g_k_down.png",
+    'z' :"d_g_k_down.png", 
+    'ih' :"ah_eh_ih_down.png", 
+    'n' :"d_g_k_down.png", 
+    'sh' :"d_g_k_down.png", 
+    'r' :"ooh_r.png",
+    's' :"d_g_k_down.png", 
+    't' :"d_g_k_down.png",
+    'aa' :"ah_eh_ih_down.png",
+    'jh' :"d_g_k_down.png",
+    'ae' :"ah_eh_ih_down.png",
+    'y' :"y_l_down.png",
+    'uw' :"ooh_r.png",
+    'eh' :"ah_eh_ih_down.png",
+    'oov' :"ooh_r.png",
+    'd' :"d_g_k_down.png",
+    'ey' :"ah_eh_ih_down.png",
+    'er' :"d_g_k_down.png",
+    'k' :"d_g_k_down.png",
+    'f' :"f_v_down.png", 
+    'ay' :"ah_eh_ih_down.png", 
+    'ng' :"d_g_k_down.png",
+    'ch' :"d_g_k_down.png",
+    'dh' :"d_g_k_down.png",
+    'p' :"m_p_b_down.png", 
+    'v' :"f_v_down.png",
+    'ao' :"ah_eh_ih_down.png",
+    'g' :"d_g_k_down.png"
 }

@@ -5,8 +5,8 @@
         "default" : "base.png"
     },
     "mouth":{
-        "x" : 525,
-        "y": 250,
+        "x" : 200,
+        "y": 450,
         "anchor": "center"
     }
 }

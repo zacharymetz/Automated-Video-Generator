@@ -10,8 +10,17 @@
         }
     },
     "mouth":{
-        "x" : 200,
-        "y": 450,
+        "x" : 525,
+        "y": 270,
         "anchor": "center"
+    },
+    "eyes" : {
+        "x" : 420,
+        "y" : 225,
+        "anchor": "bottom-left",
+        "defualt" : "eyes_base.png",
+        "poseTable" : {
+
+        }
     }
 }
