@@ -1,7 +1,40 @@
 [TestRant]
-[actor:cuckertarlson]
-<relaxed,strait>
+actor:cuckerTarlson
+$:eyes
+#:pose
+@:frown
+!:theme
 
 [bodyStart]
+[$ strait][# relaxed][@ down][! Map Of USA] 
+Good evening America,
 
-[bodyEnds]
+We are in the middle of a crisis of epic proportion,
+and we will try to give you the latest updates on the evolving situation.
+[# explain][@ up]
+And That's what we do, we're here to give you the truth.
+[# relaxed][@ down][! Slot Machines] 
+However, this situation is so horrible, that the monsters behind it try to target the most vulnerable in our society.
+
+[$ angry]
+They will disguise slot machines as fun and innocent little things video games.
+[$ base]
+I  am of course talking about the rise of micro transactions in video games of all platforms and genres.
+
+Weve tolerated them in free to play games like clash of clans and candy crush.
+[# questioning][$ angry]
+The elites even told us to laugh at how silly people who spend money on micro transactions in games really are. 
+
+Until they left us is no other option than to purchase micro transactions because it's been baked into the core of every game.
+[$ strait]
+
+Enslaving us in a sort of micro transaction way, with seemingly no routes of escape.
+
+[bodyEnd]
+
+
+
+
+
+
+

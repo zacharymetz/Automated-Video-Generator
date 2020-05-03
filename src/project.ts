@@ -1,9 +1,10 @@
-import { SceneObject, StaticPositiontable, createActor } from "./scene";
+import { SceneObject, StaticPositiontable, createActor, createSlideShowObject } from "./scene";
 import { readFileSync, mkdirSync } from "fs";
 import * as rimraf from 'rimraf';
 import Jimp = require("jimp");
 import { Worker } from 'worker_threads';
-const { getAudioDurationInSeconds } = require('get-audio-duration')
+const { getAudioDurationInSeconds } = require('get-audio-duration');
+import { getImagesFromTopicList} from './imageRetriver';
 //  for now a project has one scene, 
 export class Project{
     projectFolder:string;
@@ -28,9 +29,9 @@ export class Project{
         //  first we need to load the script 
         await this.loadAudioInfo();
         await this.loadScript();
-
-        await this.generateFrames();
-        this.generateProjectVideo();
+        console.log("doneLoadingscript")
+        //await this.generateFrames();
+        //this.generateProjectVideo();
     }
     async loadAudioInfo() {
         let duration =  await getAudioDurationInSeconds("./projects/"+this.projectFolder+'/voice.mp3');
@@ -62,16 +63,24 @@ export class Project{
         //  set the word track for the actor 
         actorTracks.set("words",alignFile.words);
         actorTracks.set("eyes",new Map<string,any>());
+
+        //  this is
+        let supportingActorTracksMap = new Map<string,string>();
         let currentLine = scriptLines.shift();
-        console.log(scriptLines)
+         
         while(currentLine != "[bodyStart]"){console.log(currentLine)
             //  so the only configuration things are 
             //  what actor it is 
             let params = currentLine.split(":");
             //  if we get the actor name 
             if(params[0] == "actor"){
-                console.log("Asdasd", params[1])
                 actorName = params[1];
+            }
+             
+            if(["!","@","#","$"].includes(params[0])){
+                //  add the track 
+                supportingActorTracksMap.set(params[0],params[1])
+                
             }
             //  actor racks that are supported 
             if(params[0] == "actorTrack"){
@@ -86,17 +95,77 @@ export class Project{
             currentLine = scriptLines.shift();
         }
         //  copy the word array 
+        
         let words = [... alignFile.words];
+        let returnMap:Map<string,any> = new Map<string,any>();
+        returnMap.set("currentTime",0);
+
+        //  before we start to parse the script for the poses and stuff 
+        //  we need to establish what state the character is in 
+        //  at each step and stuff 
+        
+
+        let changes = new Map<string,ChangeStart[]>();
+        //  make a new start changes for each of the tracks we 
+        //  loaded in from the script 
+        for(let track of supportingActorTracksMap.keys()){
+            //  make a new list for them 
+            changes.set(track,[]);
+        }
+
+
         while(currentLine != "[bodyEnd]"){
         //  we are in the body, loop until we get to [endbody]
             //  do the line parser where i needs to keep track of 
             //  the list of words and give them time stamps 
-            
-            this.parseLine(currentLine,words);
-            
+             
+            returnMap = this.parseLine(currentLine,words,returnMap.get("currentTime"),supportingActorTracksMap);
+            //  for each track the we defined in the script 
+             
+            for(let track of supportingActorTracksMap.keys()){
+                //  lets see if the return map has any of them 
+                if(returnMap.has(supportingActorTracksMap.get(track))){
+                    //  if it does we have a state change and from now on
+                    //  we need to make sure that the frame table 
+                    //  knows that this should happen until the next change 
+                    let key:string = returnMap.get(supportingActorTracksMap.get(track))
+                    let startTime:number =returnMap.get("startTime");
+                     
+                    
+                    changes.get(track).push({
+                        key,
+                        startTime,
+                        duration :0   //  inialize duration to zero 
+                    });
+                }
+            }
+
+            //  now that we have the return map we can loop though it and get the 
+            //  important changes from it 
+
+            //  first lets just check for the mouth data i think ? 
+
+
             currentLine = scriptLines.shift();
         }
+        
+        console.log(changes)
 
+        //  now lets mess with the actor track with the changes 
+
+        //  we can just get the track vs the themes
+        let trackKey = "!";
+        console.log(changes.get(trackKey))
+        //  here lets make a new slide show object 
+        var slideShowObject = createSlideShowObject(
+            this.projectFolder,
+                changes.get(trackKey),
+                "base_slideshow.png",
+                (this.durationInMilliseconds/1000),
+                600,    //  height
+                400     //  width 
+            );
+ 
 
 
         //  when we are done we should load the background 
@@ -128,15 +197,69 @@ export class Project{
     //  will match the words form the current line to 
     //  words in the word list and also let us know 
     //  where any anotaitons we should keep track of 
-    parseLine(currentLine: string, words: any[]) {
+    /**
+     * 
+     * @param currentLine 
+     * @param words 
+     * @param currentTime 
+     * @param mapTemplate 
+     */
+    parseLine(currentLine: string, words: any[],currentTime:number, mapTemplate:Map<string,string>):Map<string,any> {
+        let returnObject  = new Map<string,any>();
+        //  first we need to remove any strings that are [] 
+        //console.log(mapTemplate)
+        returnObject.set("startTime", currentTime)
+        let currentLineList = currentLine.split(" ");
+
+        //  i guess i dont care much about mid line changes so ill just see if the line begings with 
+        //  [
+        if(currentLine.charAt(0)=="["){
+            //  then we can do something i guess 
+            let s = currentLine.split("[");
+            for(let k of s){
+                let theThing = k.split("]")[0];
+                 
+
+                //  figure out what the first char is 
+                let key = mapTemplate.get(theThing.charAt(0));
+                
+                //  then set the remainder of the string to 
+                //  something in the return map and 
+                if(key){
+                    returnObject.set(key,theThing.substring(2))
+                }
+                
+            }
+        }
+
+
+        for(let word of currentLineList){
+            //console.log(words[0].alignedWord)
+            if(words.length > 1){
+                if(word.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") == words[0].alignedWord){
+                    //console.log("word Found", word, "@",words[0].start )
+                    currentTime = words[0].start;
+                    words.shift()
+                }else{
+                    //console.log(word,words[0].alignedWord)
+                    //words.shift()
+                } 
+            }
+        }
+        //  we need to keep track of out curren time from the align file 
+
+
         //  lets get and then remove any <quese>
         //  (remeber the preceding word)
 
 
         //  do the same but for [] and instead of deleteing the whole thing,
         //  just delete the [   and  ] then it should be dope af 
-
-
+        
+        //  make sure to let us know the last one 
+        returnObject.set("currentTime",currentTime);
+        //console.log(returnObject);
+        return returnObject ;
          
     }
     async generateFrames() {
@@ -246,3 +369,10 @@ export class Project{
 
 }
 
+//  object to make script changes portable between things
+export interface ChangeStart{
+    
+    key:string;
+    startTime: number;
+    duration: number;
+}

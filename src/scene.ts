@@ -5,9 +5,11 @@
 
 import { FrameTable } from "./frameTable";
 import Jimp = require("jimp");
-import { readFileSync } from "fs";
+import { readFileSync, mkdirSync } from "fs";
  
 import {recreateFrameTableFrom} from './frameTable';
+import { ChangeStart } from "./project";
+import { getImagesFromTopicList } from "./imageRetriver";
 
 
 export class SceneObject{
@@ -80,8 +82,8 @@ export class SceneObject{
                             //  based on the anchor we need to do stuff 
 
                             //  default the anchor is the top left coner 
-                            var x = position.x;
-                            var y = position.y;
+                            let x = position.x;
+                            let y = position.y;
                             
                             //  set the anchor to center 
                              
@@ -188,6 +190,60 @@ export function createActor(name:string,subTracks:Map<string,Map<string,any>>):S
     return actor;
 
 }
+
+
+export async function createSlideShowObject(name:string,topicList:ChangeStart[],defaultImage:string, totalProjectDuration,width:number,height:number):Promise<SceneObject>{
+    
+    //  first lets use the google image scaper and get all the images we need for this 
+    let imgFolder:string = "./projects/"+name+"/slideshow/";
+    //  make the folde 
+    mkdirSync(imgFolder, { recursive: true });
+    //  pass it to the function that will go and get all the iamges and save it to 
+    //  the folder 
+    //TODO change what name this saves its as 
+    var imgList = await  getImagesFromTopicList(topicList.map(x=>x.key),imgFolder,width,height);
+
+    //  here we need to calcualte the durations 
+    for(let i=0; i<topicList.length;i++){
+        let endingTime:number;
+        if(i == (topicList.length - 1)){
+            endingTime = totalProjectDuration;
+        }else{
+            endingTime =topicList[i+1].startTime;
+        }
+        topicList[i].duration = endingTime - topicList[i].startTime;
+    }
+ 
+    
+    //  then we can make the slide show object 
+    //  the assest folder will be the project and the name is the name of the 
+    //  project so the base image can be put in there 
+    let slideShowObject = new SceneObject(name,"projects",defaultImage);
+
+    //  now use the track i passed thought to come up with when 
+    //  i should show each image and its position 
+    //  should also do some cropping with the dimentions that i pass thouhg 
+    let currentTime:number = 0;
+    for(let i=0; i < topicList.length;i++){
+        //  we want to add from curren time to this time 
+        console.log("this is the img list", imgList[i])
+        let imageSrc:string = imgList[i].imageName;
+        slideShowObject.addFrameRange(
+            imageSrc,
+            [topicList[i].startTime * 1000,(topicList[i].startTime +topicList[i].duration) * 1000]
+        );
+        //  then set current time 
+        
+    }
+
+    return slideShowObject;
+}
+
+
+
+
+
+
 
 //  like the frame table but will track position over time 
 //  all i needs to do is accept key frames and parameters 
