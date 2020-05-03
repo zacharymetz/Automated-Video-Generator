@@ -30,8 +30,8 @@ export class Project{
         await this.loadAudioInfo();
         await this.loadScript();
         console.log("doneLoadingscript")
-        //await this.generateFrames();
-        //this.generateProjectVideo();
+        await this.generateFrames();
+        this.generateProjectVideo();
     }
     async loadAudioInfo() {
         let duration =  await getAudioDurationInSeconds("./projects/"+this.projectFolder+'/voice.mp3');
@@ -59,7 +59,7 @@ export class Project{
         let outputFileName:string = scriptLines.pop();
         //  loop though the lines untill we get the [startbody] tag 
         let actorName:string;
-        let actorTracks = new Map<string,Map<string,any>>();
+        let actorTracks = new Map<string,any>();
         //  set the word track for the actor 
         actorTracks.set("words",alignFile.words);
         actorTracks.set("eyes",new Map<string,any>());
@@ -157,14 +157,7 @@ export class Project{
         let trackKey = "!";
         console.log(changes.get(trackKey))
         //  here lets make a new slide show object 
-        var slideShowObject = createSlideShowObject(
-            this.projectFolder,
-                changes.get(trackKey),
-                "base_slideshow.png",
-                (this.durationInMilliseconds/1000),
-                600,    //  height
-                400     //  width 
-            );
+        
  
 
 
@@ -183,11 +176,28 @@ export class Project{
             new SceneObject(this.projectFolder,'projects','desk.png'),
             new StaticPositiontable(0,1080,"bottom-left")
         )
+        
+        //  load in the slideShowObject 
+        var slideShowObject = await createSlideShowObject(
+            this.projectFolder,
+                changes.get(trackKey),
+                "background.png",
+                (this.durationInMilliseconds/1000),
+                600,    //  height
+                400     //  width 
+            );
+        this.rootScene.addNewSubSceenObject(
+            slideShowObject,
+            new StaticPositiontable(1200,182,"top-left")
+        );
 
+        //  adding the eyes and pose tracks 
+        actorTracks.set("eyes",changes.get("$"));
+        actorTracks.set("pose",changes.get("#"));
 
         //  then load in any actors TODO is parse the mouth track for sure
-        let actor = createActor(actorName,actorTracks);
-        console.log(actor.subObjects)
+        let actor = createActor(actorName,actorTracks,this.durationInMilliseconds);
+        console.log(actor.subObjects);
         //  return an empty promise 
         this.rootScene.addNewSubSceenObject(actor,
                         new StaticPositiontable(325,182,"top-left"))

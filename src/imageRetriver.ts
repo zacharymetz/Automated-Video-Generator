@@ -36,12 +36,13 @@ export async function getImagesFromTopicList(topicList:string[],saveFolder:strin
         console.log(imageName)
         let originalImage;
         let newImageUrl:string;
+        let time = (new Date()).getTime().toString()
         try{
           originalImage = await Jimp.read(result.url);
           await originalImage.scaleToFit(width,height)
-
+        
         //  save the image
-         newImageUrl = saveFolder+ (new Date()).getTime() + "." + result.url.split(".")[result.url.split(".").length-1];
+         newImageUrl = saveFolder+ time + "." + result.url.split(".")[result.url.split(".").length-1];
         newImageUrl= newImageUrl.split("?")[0];
         await originalImage.writeAsync(newImageUrl);
         }catch(e){
@@ -64,7 +65,9 @@ export async function getImagesFromTopicList(topicList:string[],saveFolder:strin
         
         
         //  we will do some image processing before anything 
-        result.imageName = newImageUrl;
+        let finalImageURI ="slideshow/"+ time + "." + result.url.split(".")[result.url.split(".").length-1];
+        finalImageURI= finalImageURI.split("?")[0];
+        result.imageName = finalImageURI;
         
         imgs.push(result);
 

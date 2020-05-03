@@ -126,7 +126,7 @@ interface SceneObjectListElement{
 
 
 // will create an actor form the list of elements 
-export function createActor(name:string,subTracks:Map<string,Map<string,any>>):SceneObject{
+export function createActor(name:string,subTracks:Map<string,any>,totalProjectDuration:number):SceneObject{
     //  so we need a configusation file with the actor now
     let actorConfig:any = JSON.parse( readFileSync('./actors/'+name+'/config.json', 'utf8'));
 
@@ -138,7 +138,8 @@ export function createActor(name:string,subTracks:Map<string,Map<string,any>>):S
     //  lets get the mouth track
     if(subTracks.has("words"))
     {
-         
+        //  here we will have to do something about the up and down thing 
+
         let words = subTracks.get("words") ;
         //  okay so this is the phonetic one 
         let mouthTrack = new SceneObject(name,'actors',null);
@@ -174,6 +175,21 @@ export function createActor(name:string,subTracks:Map<string,Map<string,any>>):S
     {
         //  for now lets just add a static things with a base images 
         let eyetrack = new SceneObject(name,'actors','eyes_angry.png');
+        //  here is where we can do the same thing we do in the themes thing for the eyes 
+        let eyeChanges:ChangeStart[]  = subTracks.get("eyes");
+        for(let i=0;i<eyeChanges.length;i++){
+            
+            let endingTime:number = totalProjectDuration;
+            if(i < (eyeChanges.length - 1)){
+                endingTime = eyeChanges[i + 1].startTime * 1000
+            }
+            
+            let startTime:number = eyeChanges[i].startTime * 1000;
+            let imgSrc:string = "eyes_"+ eyeChanges[i].key + ".png"; 
+            console.log("adding a new eye track",imgSrc,[startTime,endingTime],"\n\n\n\n\n\n\n\n")
+            eyetrack.addFrameRange(imgSrc,[startTime,endingTime]);
+        }
+        
         actor.addNewSubSceenObject(
             eyetrack,
             new StaticPositiontable(actorConfig.eyes.x,actorConfig.eyes.y,actorConfig.eyes.anchor)
@@ -182,6 +198,18 @@ export function createActor(name:string,subTracks:Map<string,Map<string,any>>):S
     //  if it has a pose track
     if(subTracks.has("pose"))
     {
+        let poseChanges:ChangeStart[]  = subTracks.get("pose");
+        for(let i=0;i<poseChanges.length;i++){
+            let endingTime:number = totalProjectDuration;
+            if(i < (poseChanges.length - 1)){
+                endingTime = poseChanges[i + 1].startTime * 1000
+            }
+            
+            let startTime:number = poseChanges[i].startTime * 1000;
+            let imgSrc:string = poseChanges[i].key + ".png"; 
+            console.log("adding a new pose track",imgSrc,[startTime,endingTime],"\n\n\n\n\n\n\n\n")
+            actor.addFrameRange(imgSrc,[startTime,endingTime])
+        }
         
     }
 
