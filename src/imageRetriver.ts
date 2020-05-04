@@ -8,7 +8,7 @@ var Scraper = require('images-scraper');
 export async function getImagesFromTopicList(topicList:string[],saveFolder:string,height:number,width:number):Promise<any[]>{
     const google = new Scraper({
         puppeteer: {
-          headless: false, //  run puppetter in the background 
+          headless: true, //  run puppetter in the background 
         },
         tbs: {  // every possible tbs search option, some examples and more info: http://jwebnet.net/advancedgooglesearch.html
           isz: "l",  // options: l(arge), m(edium), i(cons), etc.

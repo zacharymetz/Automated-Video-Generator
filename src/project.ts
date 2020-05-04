@@ -275,8 +275,8 @@ export class Project{
     async generateFrames() {
         //  make a temp frames files  
         let frameFolder = "./tempframes";
-        rimraf.sync(frameFolder);
-        mkdirSync(frameFolder, { recursive: true });
+        //rimraf.sync(frameFolder);
+        //mkdirSync(frameFolder, { recursive: true });
 
         //  figure out how many frames 
         //  then make a list of them based on how many render frames
@@ -371,7 +371,6 @@ export class Project{
         .inputFPS(30)
         .output('output.mp4')
         .outputFPS(30)
-        //.noAudio()
         .input('./projects/'+this.projectFolder+'/voice.mp3')
         .run();
         console.log("done")
